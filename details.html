@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details | SmartPrice</title>
+  <link rel="stylesheet" href="Style.css">
+</head>
+<body class="details-page-body">
+  <header class="top-bar">
+    <div class="left">
+      <div class="brand-row">
+        <img src="logo.png" alt="SmartPrice Logo" class="logo">
+
+        <h1>
+          <span class="smart">Smart</span><span class="price">Price</span>
+        </h1>
+      </div>
+
+    </div>
+
+    <div class="location-picker">
+      <button class="location-btn" type="button" aria-expanded="false">
+        <span class="location-label">Deliver to</span>
+        <span class="location-value">Add location</span>
+      </button>
+      <div class="location-panel">
+        <label for="details-location-input">Your delivery location</label>
+        <input id="details-location-input" class="location-input" type="text" placeholder="Enter city, area or pincode">
+        <button class="location-save-btn" type="button">Save location</button>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <select class="category">
+        <option>All</option>
+        <option>Mobiles</option>
+        <option>Laptops</option>
+        <option>Headphones</option>
+        <option>TV</option>
+      </select>
+
+      <input type="text" placeholder="Search SmartPrice...">
+
+      <button class="search-btn" type="button">&#128269;</button>
+    </div>
+
+    <div class="cart cart-action">
+      <span class="cart-icon">&#128722;</span>
+      <span class="cart-copy">
+        <span class="cart-text">My Cart</span>
+        <span class="cart-subtext">0 items</span>
+      </span>
+    </div>
+
+    <div class="orders">
+      <p class="order-top">Returns</p>
+      <p class="order-bottom">& Orders</p>
+    </div>
+
+    <div class="account">
+      <p class="signin-text"><em>Hello, Sign in here</em></p>
+      <button class="login-btn">Login</button>
+    </div>
+
+  </header>
+
+  <div class="drawer-overlay" data-drawer-close></div>
+  <aside class="side-drawer" id="site-drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h2>SmartPrice Menu</h2>
+      <button class="drawer-close" type="button" aria-label="Close menu" data-drawer-close>&times;</button>
+    </div>
+
+    <div class="drawer-section">
+      <h3>Shop</h3>
+      <a href="Smartprice.html">Home</a>
+      <a href="Smartprice.html?category=for-you#top-deals">For You</a>
+      <a href="Smartprice.html?category=deals#top-deals">Deals</a>
+      <a href="Smartprice.html?category=mobiles#top-deals">Mobiles</a>
+      <a href="Smartprice.html?category=electronics#top-deals">Electronics</a>
+    </div>
+
+    <div class="drawer-section">
+      <h3>Your Tools</h3>
+      <a href="#">Cart</a>
+      <a href="#">Returns & Orders</a>
+      <a href="#">Login</a>
+      <a href="#">Compare Prices</a>
+    </div>
+
+    <div class="drawer-section">
+      <h3>Language</h3>
+      <select class="language-select" aria-label="Language">
+        <option value="" disabled selected>Language</option>
+        <option>ENGLISH INDIA</option>
+        <option>HINDI</option>
+        <option>BANGLA</option>
+      </select>
+    </div>
+  </aside>
+
+  <nav class="menu-bar">
+    <button class="all-menu-btn" type="button" aria-controls="site-drawer" aria-expanded="false">
+      <span class="hamburger-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+      All
+    </button>
+    <ul>
+      <li><a class="menu-link" href="Smartprice.html?category=for-you#top-deals">For You</a></li>
+      <li><a class="menu-link" href="Smartprice.html">Home</a></li>
+      <li><a class="menu-link" href="Smartprice.html?category=fashion#top-deals">Fashion</a></li>
+      <li><a class="menu-link" href="Smartprice.html?category=electronics#top-deals">Electronics</a></li>
+      <li><a class="menu-link" href="Smartprice.html?category=mobiles#top-deals">Mobiles</a></li>
+      <li><a class="menu-link" href="Smartprice.html?category=baby#top-deals">Baby</a></li>
+      <li><a class="menu-link" href="Smartprice.html?category=deals#top-deals">Deals</a></li>
+    </ul>
+  </nav>
+
+  <main class="details-page-main">
+    <section class="details-intro">
+      <p class="details-eyebrow">SmartPrice product view</p>
+      <h1>Compare product details with confidence</h1>
+      <p>
+        This page is now structured to show the main product first and leave
+        clean space for seller comparison, trusted store details, offers, and
+        delivery information in the next modules.
+      </p>
+    </section>
+
+    <div class="details-layout-shell">
+      <section class="details-content-stack">
+        <div id="details-container" class="details-surface" aria-live="polite"></div>
+
+        <section class="details-section-grid" aria-label="Upcoming product detail sections">
+          <article class="details-section-card">
+            <span class="details-section-tag">Next module</span>
+            <h2>Seller comparison</h2>
+            <p>
+              This area is ready for side-by-side store prices, best offers,
+              and a clear lowest-price highlight.
+            </p>
+          </article>
+
+          <article class="details-section-card">
+            <span class="details-section-tag">Coming soon</span>
+            <h2>Specifications</h2>
+            <p>
+              We will use this section for brand, category, stock, features,
+              and technical information the buyer should know.
+            </p>
+          </article>
+
+          <article class="details-section-card">
+            <span class="details-section-tag">Coming soon</span>
+            <h2>Trust and delivery</h2>
+            <p>
+              Return policy, warranty, delivery speed, and seller trust details
+              will fit here without changing the page structure later.
+            </p>
+          </article>
+        </section>
+      </section>
+
+      <aside class="details-sidebar">
+        <div class="details-side-card">
+          <h2>What the user should get here</h2>
+          <ul class="details-checklist">
+            <li>A clear product overview with strong visual focus</li>
+            <li>Space to compare prices from different sellers</li>
+            <li>Confidence signals before making a buying decision</li>
+            <li>A layout that still feels clean on mobile screens</li>
+          </ul>
+        </div>
+
+        <div class="details-side-card details-side-card-accent">
+          <h2>Why this layout first</h2>
+          <p>
+            Building the structure now will make the next modules faster,
+            because we can add seller cards, trust badges, and specifications
+            without redesigning the page again.
+          </p>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="details.js" defer></script>
+  <script src="menu.js" defer></script>
+</body>
+</html>
