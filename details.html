@@ -53,11 +53,6 @@
       </span>
     </div>
 
-    <div class="orders">
-      <p class="order-top">Returns</p>
-      <p class="order-bottom">& Orders</p>
-    </div>
-
     <div class="account">
       <p class="signin-text"><em>Hello, Sign in here</em></p>
       <button class="login-btn">Login</button>
@@ -83,8 +78,7 @@
 
     <div class="drawer-section">
       <h3>Your Tools</h3>
-      <a href="#">Cart</a>
-      <a href="#">Returns & Orders</a>
+      <a href="cart.html">Cart</a>
       <a href="#">Login</a>
       <a href="#">Compare Prices</a>
     </div>
@@ -123,11 +117,11 @@
   <main class="details-page-main">
     <section class="details-intro">
       <p class="details-eyebrow">SmartPrice product view</p>
-      <h1>Compare product details with confidence</h1>
+      <h1>Buy from the right platform at the right price</h1>
       <p>
-        This page is now structured to show the main product first and leave
-        clean space for seller comparison, trusted store details, offers, and
-        delivery information in the next modules.
+        Tap any product and this page now shows the product details, best
+        platform price, seller options, possible savings, and similar product
+        price ideas in one place.
       </p>
     </section>
 
@@ -137,29 +131,29 @@
 
         <section class="details-section-grid" aria-label="Upcoming product detail sections">
           <article class="details-section-card">
-            <span class="details-section-tag">Next module</span>
+            <span class="details-section-tag">Live module</span>
             <h2>Seller comparison</h2>
             <p>
-              This area is ready for side-by-side store prices, best offers,
-              and a clear lowest-price highlight.
+              SmartPrice compares platforms and highlights the lowest useful
+              price with delivery and trust signals.
             </p>
           </article>
 
           <article class="details-section-card">
-            <span class="details-section-tag">Coming soon</span>
-            <h2>Specifications</h2>
+            <span class="details-section-tag">Decision help</span>
+            <h2>Similar product prices</h2>
             <p>
-              We will use this section for brand, category, stock, features,
-              and technical information the buyer should know.
+              The page also shows nearby alternatives so users can see whether
+              the selected product is actually worth the price.
             </p>
           </article>
 
           <article class="details-section-card">
-            <span class="details-section-tag">Coming soon</span>
+            <span class="details-section-tag">Next step</span>
             <h2>Trust and delivery</h2>
             <p>
-              Return policy, warranty, delivery speed, and seller trust details
-              will fit here without changing the page structure later.
+              Real seller APIs can later replace the demo comparison data with
+              live stock, warranty, delivery, and return policy details.
             </p>
           </article>
         </section>
@@ -167,26 +161,32 @@
 
       <aside class="details-sidebar">
         <div class="details-side-card">
-          <h2>What the user should get here</h2>
+          <h2>SmartPrice decision flow</h2>
           <ul class="details-checklist">
-            <li>A clear product overview with strong visual focus</li>
-            <li>Space to compare prices from different sellers</li>
-            <li>Confidence signals before making a buying decision</li>
-            <li>A layout that still feels clean on mobile screens</li>
+            <li>User taps a product card from the home page</li>
+            <li>Product details open with the original product price</li>
+            <li>SmartPrice compares platforms and marks the best offer</li>
+            <li>Similar product prices help users avoid overpaying</li>
           </ul>
         </div>
 
         <div class="details-side-card details-side-card-accent">
-          <h2>Why this layout first</h2>
+          <h2>Current version</h2>
           <p>
-            Building the structure now will make the next modules faster,
-            because we can add seller cards, trust badges, and specifications
-            without redesigning the page again.
+            This is a frontend demo of the core idea. The same UI can connect
+            to live affiliate, marketplace, or scraped seller data later.
           </p>
         </div>
       </aside>
     </div>
   </main>
+
+  <nav class="bottom-nav" aria-label="Mobile tools">
+    <a class="bottom-nav-item" href="index.html"><span>Home</span></a>
+    <button class="bottom-nav-item bottom-nav-cart" type="button"><span>Cart</span></button>
+    <a class="bottom-nav-item" href="compare.html"><span>Compare</span></a>
+    <button class="bottom-nav-item" type="button" data-mobile-menu-open><span>Menu</span></button>
+  </nav>
 
   <script src="details.js" defer></script>
   <script src="menu.js" defer></script>

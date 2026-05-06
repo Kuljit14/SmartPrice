@@ -3,6 +3,7 @@ const sectionTitle = document.querySelector(".section-title");
 const PRODUCTS_PER_API = 8;
 const USD_TO_INR = 83;
 const activeCategory = new URLSearchParams(window.location.search).get("category") || "home";
+const HOME_COMPARE_STORAGE_KEY = "smartpriceCompare";
 
 const categoryConfig = {
     home: {
@@ -63,7 +64,9 @@ const productApis = [
             title: product.title,
             image: product.thumbnail,
             price: formatUsdAsInr(product.price),
+            numericBestPrice: Math.round(Number(product.price) * USD_TO_INR),
             rating: product.rating,
+            category: product.category,
         }),
     },
     {
@@ -77,7 +80,9 @@ const productApis = [
             title: product.title,
             image: product.image,
             price: formatUsdAsInr(product.price),
+            numericBestPrice: Math.round(Number(product.price) * USD_TO_INR),
             rating: product.rating?.rate,
+            category: product.category,
         }),
     },
     {
@@ -91,7 +96,9 @@ const productApis = [
             title: product.product_name || product.generic_name || product.brands || "Food product",
             image: product.image_front_url || product.image_url,
             price: "Price unavailable",
+            numericBestPrice: null,
             rating: null,
+            category: product.categories_tags?.[0]?.replace("en:", "") || product.brands,
         }),
     },
 ];
@@ -146,7 +153,13 @@ function renderProductCard(product) {
         <h3>${product.title}</h3>
         <p>${product.price}</p>
         ${product.rating ? `<small>Rating: ${product.rating} / 5</small>` : ""}
+        <button class="product-compare-btn" type="button">Compare</button>
     `;
+
+    card.querySelector(".product-compare-btn").addEventListener("click", (event) => {
+        event.stopPropagation();
+        saveHomeProductToCompare(product, event.currentTarget);
+    });
 
     card.addEventListener("click", () => openDetails(product));
     card.addEventListener("keydown", (event) => {
@@ -164,6 +177,83 @@ function openDetails(product) {
 
 function formatUsdAsInr(price) {
     return `Rs ${Math.round(Number(price) * USD_TO_INR).toLocaleString("en-IN")}`;
+}
+
+function saveHomeProductToCompare(product, button) {
+    const compareItems = getHomeCompare();
+    const productKey = `${product.source}-${product.id}`;
+    const alreadySaved = compareItems.some((item) => `${item.source}-${item.id}` === productKey);
+
+    if (!alreadySaved) {
+        compareItems.push({
+            id: String(product.id),
+            source: product.source,
+            title: product.title,
+            description: `${product.apiName} product selected from SmartPrice browsing.`,
+            image: product.image,
+            price: product.price,
+            bestPrice: product.price,
+            numericBestPrice: product.numericBestPrice,
+            rating: product.rating || null,
+            category: product.category || "General product",
+            sourceName: product.apiName,
+            bestPlatform: product.apiName,
+            buyUrl: `details.html?source=${product.source}&id=${encodeURIComponent(product.id)}`,
+            specs: buildHomeProductSpecs(product),
+            comparedAt: new Date().toISOString(),
+        });
+        localStorage.setItem(HOME_COMPARE_STORAGE_KEY, JSON.stringify(compareItems));
+    }
+
+    button.textContent = "Added";
+    button.classList.add("saved");
+
+    if (typeof updateCompareDock === "function") {
+        updateCompareDock();
+    }
+}
+
+function buildHomeProductSpecs(product) {
+    const title = product.title.toLowerCase();
+    const category = (product.category || "").toLowerCase();
+    const isLaptop = title.includes("laptop") || category.includes("laptop");
+    const isPhone = title.includes("phone") || category.includes("smartphone");
+
+    if (isLaptop) {
+        return {
+            processor: "Intel Core i5 class",
+            ram: "8 GB",
+            storage: "512 GB SSD",
+            camera: "HD webcam",
+            battery: "8 hours",
+        };
+    }
+
+    if (isPhone) {
+        return {
+            processor: "Snapdragon class",
+            ram: "6 GB",
+            storage: "128 GB",
+            camera: "50 MP",
+            battery: "5000 mAh",
+        };
+    }
+
+    return {
+        processor: "Not applicable",
+        ram: "Not applicable",
+        storage: "Standard",
+        camera: "Not applicable",
+        battery: "Not specified",
+    };
+}
+
+function getHomeCompare() {
+    try {
+        return JSON.parse(localStorage.getItem(HOME_COMPARE_STORAGE_KEY)) || [];
+    } catch (error) {
+        return [];
+    }
 }
 
 function highlightActiveMenuLink() {

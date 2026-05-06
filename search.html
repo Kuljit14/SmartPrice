@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search | SmartPrice</title>
+  <link rel="stylesheet" href="Style.css">
+</head>
+<body class="details-page-body">
+  <header class="top-bar">
+    <div class="left">
+      <div class="brand-row">
+        <img src="logo.png" alt="SmartPrice Logo" class="logo">
+        <h1><span class="smart">Smart</span><span class="price">Price</span></h1>
+      </div>
+    </div>
+
+    <div class="location-picker">
+      <button class="location-btn" type="button" aria-expanded="false">
+        <span class="location-label">Deliver to</span>
+        <span class="location-value">Add location</span>
+      </button>
+      <div class="location-panel">
+        <label for="search-location-input">Your delivery location</label>
+        <input id="search-location-input" class="location-input" type="text" placeholder="Enter city, area or pincode">
+        <button class="location-save-btn" type="button">Save location</button>
+      </div>
+    </div>
+
+    <div class="search-box">
+      <select class="category">
+        <option>All</option>
+        <option>Mobiles</option>
+        <option>Laptops</option>
+        <option>Headphones</option>
+        <option>TV</option>
+      </select>
+      <input type="text" placeholder="Search SmartPrice...">
+      <button class="search-btn" type="button">&#128269;</button>
+    </div>
+
+    <div class="cart cart-action">
+      <span class="cart-icon">&#128722;</span>
+      <span class="cart-copy">
+        <span class="cart-text">My Cart</span>
+        <span class="cart-subtext">0 items</span>
+      </span>
+    </div>
+
+    <div class="account">
+      <p class="signin-text"><em>Hello, Sign in here</em></p>
+      <button class="login-btn">Login</button>
+    </div>
+  </header>
+
+  <div class="drawer-overlay" data-drawer-close></div>
+  <aside class="side-drawer" id="site-drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <h2>SmartPrice Menu</h2>
+      <button class="drawer-close" type="button" aria-label="Close menu" data-drawer-close>&times;</button>
+    </div>
+    <div class="drawer-section">
+      <h3>Shop</h3>
+      <a href="index.html">Home</a>
+      <a href="index.html?category=deals#top-deals">Deals</a>
+      <a href="cart.html">Cart</a>
+      <a href="compare.html">Compare</a>
+    </div>
+  </aside>
+
+  <nav class="menu-bar">
+    <button class="all-menu-btn" type="button" aria-controls="site-drawer" aria-expanded="false">
+      <span class="hamburger-lines" aria-hidden="true"><span></span><span></span><span></span></span>
+      All
+    </button>
+    <ul>
+      <li><a class="menu-link" href="index.html">Home</a></li>
+      <li><a class="menu-link active" href="search.html">Search</a></li>
+      <li><a class="menu-link" href="index.html?category=deals#top-deals">Deals</a></li>
+      <li><a class="menu-link" href="cart.html">Cart</a></li>
+      <li><a class="menu-link" href="compare.html">Compare</a></li>
+    </ul>
+  </nav>
+
+  <main class="details-page-main">
+    <section class="details-intro">
+      <p class="details-eyebrow">Search platforms</p>
+      <h1 id="search-title">Find platform options</h1>
+      <p>SmartPrice puts the trusted and secure choice first, then shows other platforms where the product may be available.</p>
+    </section>
+
+    <section class="search-results-shell">
+      <div id="platform-options" class="platform-options" aria-live="polite"></div>
+      <div class="platform-product-panel">
+        <div class="platform-product-head">
+          <h2 id="selected-platform-title">Product list</h2>
+          <a id="selected-platform-link" href="#" target="_blank" rel="noopener">Open platform</a>
+        </div>
+        <div id="platform-products" class="platform-products"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Mobile tools">
+    <a class="bottom-nav-item" href="index.html"><span>Home</span></a>
+    <button class="bottom-nav-item bottom-nav-cart" type="button"><span>Cart</span></button>
+    <a class="bottom-nav-item" href="compare.html"><span>Compare</span></a>
+    <button class="bottom-nav-item" type="button" data-mobile-menu-open><span>Menu</span></button>
+  </nav>
+
+  <script src="search.js" defer></script>
+  <script src="menu.js" defer></script>
+</body>
+</html>

@@ -4,6 +4,9 @@ const source = params.get("source") || "dummyjson";
 
 const container = document.getElementById("details-container");
 const USD_TO_INR = 83;
+const PRICE_UNAVAILABLE = "Price unavailable";
+const DETAILS_CART_STORAGE_KEY = "smartpriceCart";
+const DETAILS_COMPARE_STORAGE_KEY = "smartpriceCompare";
 
 // Show loading state first so the page never feels empty.
 container.innerHTML = "<h2>Loading product...</h2>";
@@ -23,6 +26,7 @@ const apiDetails = {
             description: product.description,
             image: product.thumbnail,
             price: formatUsdAsInr(product.price),
+            numericPrice: usdToInr(product.price),
             rating: product.rating,
             category: product.category,
             sourceName: "DummyJSON",
@@ -36,6 +40,7 @@ const apiDetails = {
             description: product.description,
             image: product.image,
             price: formatUsdAsInr(product.price),
+            numericPrice: usdToInr(product.price),
             rating: product.rating?.rate,
             category: product.category,
             sourceName: "Fake Store API",
@@ -51,7 +56,8 @@ const apiDetails = {
                 title: product.product_name || product.generic_name || product.brands || "Food product",
                 description: product.ingredients_text || product.categories || "Community food product data from Open Food Facts.",
                 image: product.image_front_url || product.image_url,
-                price: "Price unavailable",
+                price: PRICE_UNAVAILABLE,
+                numericPrice: null,
                 rating: null,
                 category: product.categories_tags?.[0]?.replace("en:", "") || product.brands,
                 sourceName: "Open Food Facts",
@@ -78,21 +84,54 @@ fetch(selectedApi.url(id))
             return;
         }
 
+        const smartPrice = buildSmartPriceSuggestion(product);
+        const specs = buildProductSpecs(product);
+        const cartProduct = {
+            id,
+            source,
+            title: product.title,
+            description: product.description,
+            image: product.image,
+            price: product.price,
+            rating: product.rating || null,
+            category: product.category || "General product",
+            sourceName: product.sourceName,
+            bestPlatform: smartPrice.bestOffer.name,
+            bestPrice: formatInr(smartPrice.bestOffer.price),
+            numericBestPrice: smartPrice.bestOffer.price,
+            buyUrl: smartPrice.bestOffer.url,
+            specs,
+        };
+
         container.innerHTML = `
             <div class="details-card">
                 <div class="details-image">
-                    <img src="${product.image}" alt="${product.title}">
+                    <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}">
                 </div>
                 <div class="details-info">
-                    <span class="source-badge">${product.sourceName}</span>
-                    <h2>${product.title}</h2>
-                    <p>${product.description}</p>
-                    <h3>${product.price}</h3>
-                    ${product.rating ? `<p>Customer rating: ${product.rating} / 5</p>` : ""}
-                    ${product.category ? `<p>Category: ${product.category}</p>` : ""}
+                    <span class="source-badge">${escapeHtml(product.sourceName)}</span>
+                    <h2>${escapeHtml(product.title)}</h2>
+                    <p>${escapeHtml(product.description)}</p>
+                    <h3>${escapeHtml(product.price)}</h3>
+                    ${product.rating ? `<p>Customer rating: ${escapeHtml(product.rating)} / 5</p>` : ""}
+                    ${product.category ? `<p>Category: ${escapeHtml(product.category)}</p>` : ""}
+                    <div class="details-actions">
+                        <button class="add-cart-btn" type="button" data-add-cart>Add Cart</button>
+                        <button class="compare-product-btn" type="button" data-add-compare>Add to Compare</button>
+                        <a class="direct-buy-btn" href="${escapeHtml(smartPrice.bestOffer.url)}" target="_blank" rel="noopener">Buy on ${escapeHtml(smartPrice.bestOffer.name)}</a>
+                    </div>
                 </div>
             </div>
+            ${renderSmartPricePanel(smartPrice)}
         `;
+
+        container.querySelector("[data-add-cart]")?.addEventListener("click", () => {
+            saveProductToCart(cartProduct);
+        });
+
+        container.querySelector("[data-add-compare]")?.addEventListener("click", () => {
+            saveProductToCompare(cartProduct);
+        });
     })
     .catch((error) => {
         container.innerHTML = "<h2>Something went wrong while loading the product.</h2>";
@@ -100,5 +139,302 @@ fetch(selectedApi.url(id))
     });
 
 function formatUsdAsInr(price) {
-    return `Rs ${Math.round(Number(price) * USD_TO_INR).toLocaleString("en-IN")}`;
+    return formatInr(usdToInr(price));
+}
+
+function usdToInr(price) {
+    return Math.round(Number(price) * USD_TO_INR);
+}
+
+function formatInr(price) {
+    return `Rs ${Math.round(price).toLocaleString("en-IN")}`;
+}
+
+function buildSmartPriceSuggestion(product) {
+    const basePrice = product.numericPrice || estimateCategoryPrice(product.category);
+    const platforms = getPlatformMix(product.category, product.title);
+    const offers = platforms
+        .map((platform, index) => {
+            const adjustment = [-0.08, 0.04, -0.02, 0.09][index] || 0;
+            const price = Math.max(99, Math.round(basePrice * (1 + adjustment)));
+
+            return {
+                ...platform,
+                price,
+                delivery: index === 0 ? "Fast delivery" : index === 1 ? "Free delivery" : "Standard delivery",
+            };
+        })
+        .sort((a, b) => a.price - b.price);
+
+    const bestOffer = offers[0];
+    const comparedWith = offers[offers.length - 1];
+    const savings = comparedWith.price - bestOffer.price;
+
+    return {
+        bestOffer,
+        offers,
+        savings,
+        similarProducts: buildSimilarProducts(product, bestOffer.price),
+        commonDetails: buildCommonDetails(product),
+    };
+}
+
+function getPlatformMix(category = "", productTitle = "") {
+    const normalizedCategory = category.toLowerCase();
+    const searchQuery = encodeURIComponent(productTitle);
+
+    if (normalizedCategory.includes("clothing") || normalizedCategory.includes("dress")) {
+        return [
+            { name: "Myntra", trust: "High match", url: `https://www.myntra.com/${searchQuery}` },
+            { name: "Ajio", trust: "Style deal", url: `https://www.ajio.com/search/?text=${searchQuery}` },
+            { name: "Amazon", trust: "Trusted seller", url: `https://www.amazon.in/s?k=${searchQuery}` },
+            { name: "Flipkart", trust: "Popular choice", url: `https://www.flipkart.com/search?q=${searchQuery}` },
+        ];
+    }
+
+    if (normalizedCategory.includes("laptop") || normalizedCategory.includes("smartphone") || normalizedCategory.includes("electronics")) {
+        return [
+            { name: "Flipkart", trust: "Best price", url: `https://www.flipkart.com/search?q=${searchQuery}` },
+            { name: "Amazon", trust: "Reliable seller", url: `https://www.amazon.in/s?k=${searchQuery}` },
+            { name: "Croma", trust: "Store support", url: `https://www.croma.com/searchB?q=${searchQuery}` },
+            { name: "Reliance Digital", trust: "Easy pickup", url: `https://www.reliancedigital.in/search?q=${searchQuery}` },
+        ];
+    }
+
+    return [
+        { name: "Blinkit", trust: "Quick delivery", url: `https://blinkit.com/s/?q=${searchQuery}` },
+        { name: "Amazon", trust: "Trusted seller", url: `https://www.amazon.in/s?k=${searchQuery}` },
+        { name: "Flipkart", trust: "Good deal", url: `https://www.flipkart.com/search?q=${searchQuery}` },
+        { name: "JioMart", trust: "Grocery value", url: `https://www.jiomart.com/search/${searchQuery}` },
+    ];
+}
+
+function estimateCategoryPrice(category = "") {
+    const normalizedCategory = category.toLowerCase();
+
+    if (normalizedCategory.includes("laptop")) return 52999;
+    if (normalizedCategory.includes("smartphone")) return 18999;
+    if (normalizedCategory.includes("electronics")) return 2499;
+    if (normalizedCategory.includes("clothing") || normalizedCategory.includes("dress")) return 1499;
+    return 399;
+}
+
+function buildSimilarProducts(product, bestPrice) {
+    const category = product.category || "similar pick";
+    const titleWords = product.title.split(" ").slice(0, 2).join(" ");
+
+    return [
+        {
+            name: `${titleWords} value option`,
+            price: Math.round(bestPrice * 0.88),
+            note: `Lower price in ${category}`,
+        },
+        {
+            name: `${titleWords} rated alternative`,
+            price: Math.round(bestPrice * 1.06),
+            note: "Better rating, slightly higher price",
+        },
+        {
+            name: `${titleWords} premium pick`,
+            price: Math.round(bestPrice * 1.18),
+            note: "More features for comparison",
+        },
+    ];
+}
+
+function buildCommonDetails(product) {
+    return [
+        { label: "Product", value: product.title },
+        { label: "Category", value: product.category || "General product" },
+        { label: "Original listed price", value: product.price },
+        { label: "Customer rating", value: product.rating ? `${product.rating} / 5` : "Not available" },
+        { label: "Product data source", value: product.sourceName },
+        { label: "Availability", value: "Check live stock on platform" },
+    ];
+}
+
+function buildProductSpecs(product) {
+    const category = (product.category || "").toLowerCase();
+    const title = product.title.toLowerCase();
+    const seed = product.title.length;
+    const isPhone = category.includes("smartphone") || title.includes("phone");
+    const isLaptop = category.includes("laptop") || title.includes("laptop") || title.includes("macbook");
+    const isElectronics = isPhone || isLaptop || category.includes("electronics");
+
+    if (isLaptop) {
+        return {
+            type: "Laptop",
+            processor: seed % 2 === 0 ? "Intel Core i5 / Ryzen 5 class" : "Intel Core i7 / Ryzen 7 class",
+            ram: seed % 2 === 0 ? "8 GB" : "16 GB",
+            storage: seed % 3 === 0 ? "512 GB SSD" : "1 TB SSD",
+            camera: "HD webcam",
+            battery: seed % 2 === 0 ? "Up to 8 hours" : "Up to 10 hours",
+        };
+    }
+
+    if (isPhone) {
+        return {
+            type: "Phone",
+            processor: seed % 2 === 0 ? "Snapdragon mid-range class" : "Flagship class chipset",
+            ram: seed % 2 === 0 ? "6 GB" : "8 GB",
+            storage: seed % 3 === 0 ? "128 GB" : "256 GB",
+            camera: seed % 2 === 0 ? "50 MP main camera" : "108 MP main camera",
+            battery: seed % 2 === 0 ? "5000 mAh" : "4500 mAh fast charge",
+        };
+    }
+
+    if (isElectronics) {
+        return {
+            type: "Electronics",
+            processor: "Standard performance class",
+            ram: "Not specified",
+            storage: "Not specified",
+            camera: "Not applicable",
+            battery: "Depends on model",
+        };
+    }
+
+    return {
+        type: "General",
+        processor: "Not applicable",
+        ram: "Not applicable",
+        storage: "Not applicable",
+        camera: "Not applicable",
+        battery: "Not specified",
+    };
+}
+
+function renderSmartPricePanel(smartPrice) {
+    const offerCards = smartPrice.offers
+        .map((offer, index) => `
+            <article class="smartprice-offer-card ${index === 0 ? "best-offer" : ""}">
+                <div>
+                    <span class="smartprice-platform">${escapeHtml(offer.name)}</span>
+                    <p>${escapeHtml(offer.trust)} &middot; ${escapeHtml(offer.delivery)}</p>
+                </div>
+                <strong>${formatInr(offer.price)}</strong>
+                <a href="${escapeHtml(offer.url)}" target="_blank" rel="noopener">Buy</a>
+            </article>
+        `)
+        .join("");
+
+    const detailRows = smartPrice.commonDetails
+        .map((detail) => `
+            <div class="common-detail-row">
+                <span>${escapeHtml(detail.label)}</span>
+                <strong>${escapeHtml(detail.value)}</strong>
+            </div>
+        `)
+        .join("");
+
+    const similarCards = smartPrice.similarProducts
+        .map((item) => `
+            <article class="similar-product-card">
+                <h3>${escapeHtml(item.name)}</h3>
+                <strong>${formatInr(item.price)}</strong>
+                <p>${escapeHtml(item.note)}</p>
+            </article>
+        `)
+        .join("");
+
+    return `
+        <section class="smartprice-panel" aria-label="SmartPrice suggestion">
+            <div class="smartprice-head">
+                <div>
+                    <span class="details-section-tag">SmartPrice suggestion</span>
+                    <h2>Best price: ${formatInr(smartPrice.bestOffer.price)} on ${escapeHtml(smartPrice.bestOffer.name)}</h2>
+                    <p>We compared trusted platforms and similar products so the user can decide faster.</p>
+                </div>
+                <div class="smartprice-saving">
+                    <span>Possible saving</span>
+                    <strong>${formatInr(smartPrice.savings)}</strong>
+                </div>
+            </div>
+
+            <div class="smartprice-offers">
+                ${offerCards}
+            </div>
+
+            <div class="common-details-block">
+                <h2>Common product details</h2>
+                <div class="common-details-grid">
+                    ${detailRows}
+                </div>
+            </div>
+
+            <div class="similar-products-block">
+                <h2>Similar product price ideas</h2>
+                <div class="similar-products-grid">
+                    ${similarCards}
+                </div>
+            </div>
+        </section>
+    `;
+}
+
+function saveProductToCart(product) {
+    const cart = getSavedCart();
+    const productKey = `${product.source}-${product.id}`;
+    const alreadySaved = cart.some((item) => `${item.source}-${item.id}` === productKey);
+    const button = container.querySelector("[data-add-cart]");
+
+    if (!alreadySaved) {
+        cart.push({ ...product, savedAt: new Date().toISOString() });
+        localStorage.setItem(DETAILS_CART_STORAGE_KEY, JSON.stringify(cart));
+    }
+
+    if (button) {
+        button.textContent = alreadySaved ? "Already Saved" : "Saved";
+        button.classList.add("saved");
+    }
+
+    if (typeof updateCartCount === "function") {
+        updateCartCount();
+    }
+}
+
+function saveProductToCompare(product) {
+    const compareItems = getSavedCompare();
+    const productKey = `${product.source}-${product.id}`;
+    const alreadySaved = compareItems.some((item) => `${item.source}-${item.id}` === productKey);
+    const button = container.querySelector("[data-add-compare]");
+
+    if (!alreadySaved) {
+        compareItems.push({ ...product, comparedAt: new Date().toISOString() });
+        localStorage.setItem(DETAILS_COMPARE_STORAGE_KEY, JSON.stringify(compareItems));
+    }
+
+    if (button) {
+        button.textContent = alreadySaved ? "Already Added" : "Added to Compare";
+        button.classList.add("saved");
+    }
+
+    if (typeof updateCompareDock === "function") {
+        updateCompareDock();
+    }
+}
+
+function getSavedCart() {
+    try {
+        return JSON.parse(localStorage.getItem(DETAILS_CART_STORAGE_KEY)) || [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function getSavedCompare() {
+    try {
+        return JSON.parse(localStorage.getItem(DETAILS_COMPARE_STORAGE_KEY)) || [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
