@@ -549,7 +549,11 @@ h2 {
 /* HERO SECTION */
 
 .hero {
-    background: url('hero.png') center/cover no-repeat;
+    background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(37, 99, 235, 0.72)),
+        radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.40), transparent 32%),
+        radial-gradient(circle at 80% 30%, rgba(14, 165, 233, 0.34), transparent 30%),
+        #111827;
     height: 290px;
     position: relative;
     display: flex;
