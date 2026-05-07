@@ -1,5 +1,6 @@
 const searchParams = new URLSearchParams(window.location.search);
 const searchQuery = searchParams.get("q") || "";
+const selectedSearchCategory = searchParams.get("category") || "all";
 const searchTitle = document.getElementById("search-title");
 const platformOptions = document.getElementById("platform-options");
 const platformProducts = document.getElementById("platform-products");
@@ -11,6 +12,18 @@ const platformList = buildPlatformOptions(searchQuery);
 
 document.querySelectorAll(".search-box input").forEach((input) => {
     input.value = searchQuery;
+});
+
+document.querySelectorAll(".search-box .category").forEach((select) => {
+    const categoryLabel = {
+        all: "All",
+        mobiles: "Mobiles",
+        electronics: "Laptops",
+    }[selectedSearchCategory] || "All";
+
+    [...select.options].forEach((option) => {
+        option.selected = option.textContent === categoryLabel;
+    });
 });
 
 searchTitle.textContent = searchQuery ? `Search results for "${searchQuery}"` : "Search SmartPrice";
@@ -27,7 +40,7 @@ function buildPlatformOptions(query) {
     const encodedQuery = encodeURIComponent(query);
     const lowerQuery = query.toLowerCase();
     const isFashion = lowerQuery.includes("shirt") || lowerQuery.includes("dress") || lowerQuery.includes("shoe") || lowerQuery.includes("jeans");
-    const isElectronics = lowerQuery.includes("phone") || lowerQuery.includes("laptop") || lowerQuery.includes("headphone") || lowerQuery.includes("tv") || lowerQuery.includes("watch");
+    const isElectronics = selectedSearchCategory === "electronics" || selectedSearchCategory === "mobiles" || lowerQuery.includes("phone") || lowerQuery.includes("laptop") || lowerQuery.includes("headphone") || lowerQuery.includes("tv") || lowerQuery.includes("watch");
 
     if (isFashion) {
         return [
@@ -150,8 +163,8 @@ function buildSearchProduct(selectedPlatform, index, suffix, reason) {
 
 function buildSearchSpecs(index) {
     const lowerQuery = searchQuery.toLowerCase();
-    const isLaptop = lowerQuery.includes("laptop") || lowerQuery.includes("macbook");
-    const isPhone = lowerQuery.includes("phone") || lowerQuery.includes("mobile");
+    const isLaptop = selectedSearchCategory === "electronics" || lowerQuery.includes("laptop") || lowerQuery.includes("macbook");
+    const isPhone = selectedSearchCategory === "mobiles" || lowerQuery.includes("phone") || lowerQuery.includes("mobile");
 
     if (isLaptop) {
         return {
@@ -188,7 +201,7 @@ function buildSearchSpecs(index) {
 function buildProductImage(index) {
     const lowerQuery = searchQuery.toLowerCase();
 
-    if (lowerQuery.includes("laptop") || lowerQuery.includes("macbook")) {
+    if (selectedSearchCategory === "electronics" || lowerQuery.includes("laptop") || lowerQuery.includes("macbook")) {
         return [
             "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=500&q=80",
             "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=500&q=80",
@@ -196,7 +209,7 @@ function buildProductImage(index) {
         ][index];
     }
 
-    if (lowerQuery.includes("phone") || lowerQuery.includes("mobile")) {
+    if (selectedSearchCategory === "mobiles" || lowerQuery.includes("phone") || lowerQuery.includes("mobile")) {
         return [
             "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80",
             "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=500&q=80",

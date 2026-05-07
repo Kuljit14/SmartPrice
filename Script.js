@@ -51,84 +51,122 @@ const categoryConfig = {
 };
 
 const selectedCategory = categoryConfig[activeCategory] || categoryConfig.home;
+const rowOrder = activeCategory === "home"
+    ? ["electronics", "mobiles", "fashion", "baby", "deals"]
+    : [activeCategory];
 
-const productApis = [
-    {
-        name: "DummyJSON",
-        url: selectedCategory.dummyUrl,
-        getProducts: (data) => data.products || [],
-        normalize: (product) => ({
-            id: product.id,
-            source: "dummyjson",
-            apiName: "DummyJSON",
-            title: product.title,
-            image: product.thumbnail,
-            price: formatUsdAsInr(product.price),
-            numericBestPrice: Math.round(Number(product.price) * USD_TO_INR),
-            rating: product.rating,
-            category: product.category,
-        }),
-    },
-    {
-        name: "Fake Store API",
-        url: selectedCategory.fakeUrl,
-        getProducts: (data) => data || [],
-        normalize: (product) => ({
-            id: product.id,
-            source: "fakestore",
-            apiName: "Fake Store API",
-            title: product.title,
-            image: product.image,
-            price: formatUsdAsInr(product.price),
-            numericBestPrice: Math.round(Number(product.price) * USD_TO_INR),
-            rating: product.rating?.rate,
-            category: product.category,
-        }),
-    },
-    {
-        name: "Open Food Facts",
-        url: `https://world.openfoodfacts.net/api/v2/search?categories_tags_en=${selectedCategory.foodCategory}&page_size=${PRODUCTS_PER_API}&fields=code,product_name,generic_name,brands,image_front_url,image_url,categories_tags,ingredients_text,categories`,
-        getProducts: (data) => data.products || [],
-        normalize: (product) => ({
-            id: product.code,
-            source: "openfoodfacts",
-            apiName: "Open Food Facts",
-            title: product.product_name || product.generic_name || product.brands || "Food product",
-            image: product.image_front_url || product.image_url,
-            price: "Price unavailable",
-            numericBestPrice: null,
-            rating: null,
-            category: product.categories_tags?.[0]?.replace("en:", "") || product.brands,
-        }),
-    },
-];
-
-sectionTitle.textContent = selectedCategory.title;
-container.innerHTML = `<p class="products-status">Loading ${selectedCategory.title.toLowerCase()}...</p>`;
+sectionTitle.textContent = activeCategory === "home" ? "Shop By Category" : selectedCategory.title;
+container.classList.add("category-row-container");
+container.innerHTML = `<p class="products-status">Loading product rows...</p>`;
 highlightActiveMenuLink();
 
 loadHomeProducts();
 
 async function loadHomeProducts() {
     try {
-        const apiResults = await Promise.allSettled(productApis.map(loadProductsFromApi));
-        const products = apiResults
-            .filter((result) => result.status === "fulfilled")
-            .flatMap((result) => result.value)
-            .filter((product) => product.id && product.title && product.image);
-
         container.innerHTML = "";
+        await Promise.all(rowOrder.map(loadCategoryRow));
 
-        if (!products.length) {
+        if (!container.children.length) {
             container.innerHTML = `<p class="products-status">No products are available right now.</p>`;
-            return;
         }
-
-        products.forEach(renderProductCard);
     } catch (error) {
         container.innerHTML = `<p class="products-status">Something went wrong while loading products.</p>`;
         console.log("Error:", error);
     }
+}
+
+async function loadCategoryRow(categoryKey) {
+    const config = categoryConfig[categoryKey] || categoryConfig.home;
+    const apiResults = await Promise.allSettled(createProductApis(config).map(loadProductsFromApi));
+    const products = apiResults
+        .filter((result) => result.status === "fulfilled")
+        .flatMap((result) => result.value)
+        .filter((product) => product.id && product.title && product.image)
+        .slice(0, 12);
+
+    if (!products.length) return;
+
+    const row = document.createElement("section");
+    row.className = "category-product-row";
+    row.innerHTML = `
+        <div class="category-row-head">
+            <h3>${config.title}</h3>
+            <div class="category-row-actions">
+                <button class="row-scroll-btn" type="button" data-row-direction="left" aria-label="Scroll ${config.title} left">&lt;</button>
+                <button class="row-scroll-btn" type="button" data-row-direction="right" aria-label="Scroll ${config.title} right">&gt;</button>
+                <a href="index.html?category=${encodeURIComponent(categoryKey)}#top-deals">View all</a>
+            </div>
+        </div>
+        <div class="category-row-track"></div>
+    `;
+
+    const track = row.querySelector(".category-row-track");
+    row.querySelectorAll(".row-scroll-btn").forEach((button) => {
+        button.addEventListener("click", () => {
+            const direction = button.dataset.rowDirection === "left" ? -1 : 1;
+            track.scrollBy({
+                left: direction * Math.max(260, track.clientWidth * 0.82),
+                behavior: "smooth",
+            });
+        });
+    });
+
+    products.forEach((product) => renderProductCard(product, track));
+    container.appendChild(row);
+}
+
+function createProductApis(config) {
+    return [
+        {
+            name: "DummyJSON",
+            url: config.dummyUrl,
+            getProducts: (data) => data.products || [],
+            normalize: (product) => ({
+                id: product.id,
+                source: "dummyjson",
+                apiName: "DummyJSON",
+                title: product.title,
+                image: product.thumbnail,
+                price: formatUsdAsInr(product.price),
+                numericBestPrice: Math.round(Number(product.price) * USD_TO_INR),
+                rating: product.rating,
+                category: product.category,
+            }),
+        },
+        {
+            name: "Fake Store API",
+            url: config.fakeUrl,
+            getProducts: (data) => data || [],
+            normalize: (product) => ({
+                id: product.id,
+                source: "fakestore",
+                apiName: "Fake Store API",
+                title: product.title,
+                image: product.image,
+                price: formatUsdAsInr(product.price),
+                numericBestPrice: Math.round(Number(product.price) * USD_TO_INR),
+                rating: product.rating?.rate,
+                category: product.category,
+            }),
+        },
+        {
+            name: "Open Food Facts",
+            url: `https://world.openfoodfacts.net/api/v2/search?categories_tags_en=${config.foodCategory}&page_size=${PRODUCTS_PER_API}&fields=code,product_name,generic_name,brands,image_front_url,image_url,categories_tags,ingredients_text,categories`,
+            getProducts: (data) => data.products || [],
+            normalize: (product) => ({
+                id: product.code,
+                source: "openfoodfacts",
+                apiName: "Open Food Facts",
+                title: product.product_name || product.generic_name || product.brands || "Food product",
+                image: product.image_front_url || product.image_url,
+                price: "Price unavailable",
+                numericBestPrice: null,
+                rating: null,
+                category: product.categories_tags?.[0]?.replace("en:", "") || product.brands,
+            }),
+        },
+    ];
 }
 
 async function loadProductsFromApi(api) {
@@ -142,7 +180,7 @@ async function loadProductsFromApi(api) {
     return api.getProducts(data).slice(0, PRODUCTS_PER_API).map(api.normalize);
 }
 
-function renderProductCard(product) {
+function renderProductCard(product, parent = container) {
     const card = document.createElement("div");
     card.classList.add("product-card");
     card.tabIndex = 0;
@@ -168,7 +206,7 @@ function renderProductCard(product) {
         }
     });
 
-    container.appendChild(card);
+    parent.appendChild(card);
 }
 
 function openDetails(product) {

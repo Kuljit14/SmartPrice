@@ -132,6 +132,13 @@ fetch(selectedApi.url(id))
         container.querySelector("[data-add-compare]")?.addEventListener("click", () => {
             saveProductToCompare(cartProduct);
         });
+
+        container.querySelectorAll("[data-explore-compare]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const productIndex = Number(button.dataset.exploreCompare);
+                saveProductToCompare(smartPrice.exploreProducts[productIndex], button);
+            });
+        });
     })
     .catch((error) => {
         container.innerHTML = "<h2>Something went wrong while loading the product.</h2>";
@@ -175,6 +182,7 @@ function buildSmartPriceSuggestion(product) {
         offers,
         savings,
         similarProducts: buildSimilarProducts(product, bestOffer.price),
+        exploreProducts: buildExploreProducts(product, bestOffer),
         commonDetails: buildCommonDetails(product),
     };
 }
@@ -240,6 +248,62 @@ function buildSimilarProducts(product, bestPrice) {
             note: "More features for comparison",
         },
     ];
+}
+
+function buildExploreProducts(product, bestOffer) {
+    const titleWords = product.title.split(" ").slice(0, 2).join(" ");
+    const category = product.category || "General product";
+    const basePrice = bestOffer.price;
+
+    return [
+        buildExploreProduct(product, `${titleWords} value alternative`, category, Math.round(basePrice * 0.90), 0, bestOffer),
+        buildExploreProduct(product, `${titleWords} performance pick`, category, Math.round(basePrice * 1.08), 1, bestOffer),
+        buildExploreProduct(product, `${titleWords} premium option`, category, Math.round(basePrice * 1.18), 2, bestOffer),
+    ];
+}
+
+function buildExploreProduct(product, title, category, price, index, bestOffer) {
+    const specs = buildProductSpecs({ ...product, title, category });
+    const query = encodeURIComponent(title);
+
+    return {
+        id: `${source}-${id}-similar-${index}`,
+        source: "similar",
+        title,
+        description: `More ${category} option for users who want to compare before buying.`,
+        image: getExploreImage(product, index),
+        price: formatInr(price),
+        bestPrice: formatInr(price),
+        numericBestPrice: price,
+        rating: index === 0 ? 4.2 : index === 1 ? 4.5 : 4.4,
+        category,
+        sourceName: "SmartPrice similar",
+        bestPlatform: bestOffer.name,
+        buyUrl: `${bestOffer.url.split("?")[0]}?q=${query}`,
+        specs,
+    };
+}
+
+function getExploreImage(product, index) {
+    const category = (product.category || "").toLowerCase();
+
+    if (category.includes("smartphone")) {
+        return [
+            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=500&q=80",
+        ][index];
+    }
+
+    if (category.includes("laptop") || category.includes("electronics")) {
+        return [
+            "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=500&q=80",
+            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=500&q=80",
+        ][index];
+    }
+
+    return product.image;
 }
 
 function buildCommonDetails(product) {
@@ -337,6 +401,30 @@ function renderSmartPricePanel(smartPrice) {
         `)
         .join("");
 
+    const exploreCards = smartPrice.exploreProducts
+        .map((product, index) => `
+            <article class="explore-product-card">
+                <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}">
+                <div>
+                    <span class="source-badge">${escapeHtml(product.bestPlatform)}</span>
+                    <h3>${escapeHtml(product.title)}</h3>
+                    <p>${escapeHtml(product.description)}</p>
+                    <div class="search-spec-grid">
+                        <span><strong>Processor</strong>${escapeHtml(product.specs.processor)}</span>
+                        <span><strong>RAM</strong>${escapeHtml(product.specs.ram)}</span>
+                        <span><strong>Storage</strong>${escapeHtml(product.specs.storage)}</span>
+                        <span><strong>Camera</strong>${escapeHtml(product.specs.camera)}</span>
+                    </div>
+                </div>
+                <strong>${escapeHtml(product.bestPrice)}</strong>
+                <div class="search-product-actions">
+                    <button type="button" data-explore-compare="${index}">Compare</button>
+                    <a href="${escapeHtml(product.buyUrl)}" target="_blank" rel="noopener">Buy</a>
+                </div>
+            </article>
+        `)
+        .join("");
+
     return `
         <section class="smartprice-panel" aria-label="SmartPrice suggestion">
             <div class="smartprice-head">
@@ -368,6 +456,13 @@ function renderSmartPricePanel(smartPrice) {
                     ${similarCards}
                 </div>
             </div>
+
+            <div class="explore-products-block">
+                <h2>Explore more similar products</h2>
+                <div class="explore-products-grid">
+                    ${exploreCards}
+                </div>
+            </div>
         </section>
     `;
 }
@@ -393,11 +488,11 @@ function saveProductToCart(product) {
     }
 }
 
-function saveProductToCompare(product) {
+function saveProductToCompare(product, actionButton) {
     const compareItems = getSavedCompare();
     const productKey = `${product.source}-${product.id}`;
     const alreadySaved = compareItems.some((item) => `${item.source}-${item.id}` === productKey);
-    const button = container.querySelector("[data-add-compare]");
+    const button = actionButton || container.querySelector("[data-add-compare]");
 
     if (!alreadySaved) {
         compareItems.push({ ...product, comparedAt: new Date().toISOString() });

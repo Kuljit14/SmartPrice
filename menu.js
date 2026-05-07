@@ -7,7 +7,7 @@ const savedLocation = localStorage.getItem("smartpriceLocation");
 const savedUserName = localStorage.getItem("smartpriceUserName");
 const searchBoxes = document.querySelectorAll(".search-box");
 const cartActions = document.querySelectorAll(".cart-action, .bottom-nav-cart");
-const loginButtons = document.querySelectorAll(".login-btn");
+const loginButtons = document.querySelectorAll(".login-btn, .bottom-login");
 const MENU_CART_STORAGE_KEY = "smartpriceCart";
 const MENU_COMPARE_STORAGE_KEY = "smartpriceCompare";
 const MENU_USER_STORAGE_KEY = "smartpriceUserName";
@@ -79,11 +79,20 @@ cartActions.forEach((cartAction) => {
 searchBoxes.forEach((searchBox) => {
     const input = searchBox.querySelector("input");
     const button = searchBox.querySelector(".search-btn");
+    const category = searchBox.querySelector(".category");
 
-    button?.addEventListener("click", () => submitSmartPriceSearch(input));
+    button?.addEventListener("click", () => submitSmartPriceSearch(input, category));
     input?.addEventListener("keydown", (event) => {
         if (event.key === "Enter") {
-            submitSmartPriceSearch(input);
+            submitSmartPriceSearch(input, category);
+        }
+    });
+
+    category?.addEventListener("change", () => {
+        const query = input?.value.trim();
+
+        if (!query) {
+            goToSelectedCategory(category);
         }
     });
 });
@@ -180,15 +189,41 @@ function renderLoginPanel() {
     });
 }
 
-function submitSmartPriceSearch(input) {
+function submitSmartPriceSearch(input, category) {
     const query = input?.value.trim();
+    const categoryKey = getSelectedCategoryKey(category);
 
     if (!query) {
-        input?.focus();
+        goToSelectedCategory(category);
         return;
     }
 
-    window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+    window.location.href = `search.html?q=${encodeURIComponent(query)}&category=${encodeURIComponent(categoryKey)}`;
+}
+
+function goToSelectedCategory(category) {
+    const categoryKey = getSelectedCategoryKey(category);
+
+    if (categoryKey === "all") {
+        window.location.href = "index.html#top-deals";
+        return;
+    }
+
+    window.location.href = `index.html?category=${encodeURIComponent(categoryKey)}#top-deals`;
+}
+
+function getSelectedCategoryKey(category) {
+    const selected = category?.value || category?.selectedOptions?.[0]?.textContent || "All";
+    const normalized = selected.toLowerCase();
+    const categoryMap = {
+        all: "all",
+        mobiles: "mobiles",
+        laptops: "electronics",
+        headphones: "electronics",
+        tv: "electronics",
+    };
+
+    return categoryMap[normalized] || "all";
 }
 
 function getSmartPriceCart() {
