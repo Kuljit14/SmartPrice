@@ -4,175 +4,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>SmartPrice</title>
-
+    <title>PawMarket | Adopt And Buy Pets</title>
     <link rel="stylesheet" href="Style.css">
-
 </head>
 
-<body class="home-page-body">
-
-    <header class="top-bar">
-
-        <div class="left">
-            <div class="brand-row">
-                <img src="logo.png" alt="SmartPrice Logo" class="logo">
-
-                <h1>
-                    <span class="smart">Smart</span><span class="price">Price</span>
-                </h1>
-
-
-            </div>
-
-        </div>
-
-        <div class="location-picker">
-            <button class="location-btn" type="button" aria-expanded="false">
-                <span class="location-label">Deliver to</span>
-                <span class="location-value">Add location</span>
-            </button>
-            <div class="location-panel">
-                <label for="home-location-input">Your delivery location</label>
-                <input id="home-location-input" class="location-input" type="text" placeholder="Enter city, area or pincode">
-                <button class="location-save-btn" type="button">Save location</button>
-            </div>
-        </div>
-
-        <div class="search-box">
-
-            <select class="category">
-                <option>All</option>
-                <option>Mobiles</option>
-                <option>Laptops</option>
-                <option>Headphones</option>
-                <option>TV</option>
-            </select>
-
-            <input type="text" placeholder="Search SmartPrice...">
-
-            <button class="search-btn" type="button">&#128269;</button>
-
-        </div>
-
-        <div class="cart cart-action">
-            <span class="cart-icon">&#128722;</span>
-            <span class="cart-copy">
-                <span class="cart-text">My Cart</span>
-                <span class="cart-subtext">0 items</span>
+<body class="pet-page-body">
+    <header class="pet-topbar">
+        <a class="pet-brand" href="index.html" aria-label="PawMarket home">
+            <span class="pet-brand-mark">PM</span>
+            <span>
+                <strong>PawMarket</strong>
+                <small>Trusted pet listings</small>
             </span>
-        </div>
+        </a>
 
-        <div class="account">
-
-            <p class="signin-text"><em>Hello, Sign in here</em></p>
-
-            <button class="login-btn">Login</button>
-
-        </div>
-
+        <nav class="pet-nav" aria-label="Main navigation">
+            <a href="#animals">Animals</a>
+            <a href="#post">Post</a>
+            <a href="#contact">Contact</a>
+        </nav>
     </header>
 
-    <div class="drawer-overlay" data-drawer-close></div>
-    <aside class="side-drawer" id="site-drawer" aria-hidden="true">
-        <div class="drawer-head">
-            <h2>SmartPrice Menu</h2>
-            <button class="drawer-close" type="button" aria-label="Close menu" data-drawer-close>&times;</button>
-        </div>
-
-        <div class="drawer-section">
-            <h3>Shop</h3>
-            <a href="index.html">Home</a>
-            <a href="index.html?category=for-you#top-deals">For You</a>
-            <a href="index.html?category=deals#top-deals">Deals</a>
-            <a href="index.html?category=mobiles#top-deals">Mobiles</a>
-            <a href="index.html?category=electronics#top-deals">Electronics</a>
-        </div>
-
-        <div class="drawer-section">
-            <h3>Your Tools</h3>
-            <a href="cart.html">Cart</a>
-            <a href="#">Login</a>
-            <a href="#">Compare Prices</a>
-        </div>
-
-        <div class="drawer-section">
-            <h3>Language</h3>
-            <select class="language-select" aria-label="Language">
-                <option value="" disabled selected>Language</option>
-                <option>ENGLISH INDIA</option>
-                <option>HINDI</option>
-                <option>BANGLA</option>
-            </select>
-        </div>
-    </aside>
-
-    <nav class="menu-bar">
-        <button class="all-menu-btn" type="button" aria-controls="site-drawer" aria-expanded="false">
-            <span class="hamburger-lines" aria-hidden="true">
-                <span></span>
-                <span></span>
-                <span></span>
-            </span>
-            All
-        </button>
-        <ul>
-            <li><a class="menu-link" data-category="for-you" href="index.html?category=for-you#top-deals">For You</a></li>
-            <li><a class="menu-link" data-category="home" href="index.html">Home</a></li>
-            <li><a class="menu-link" data-category="fashion" href="index.html?category=fashion#top-deals">Fashion</a></li>
-            <li><a class="menu-link" data-category="electronics" href="index.html?category=electronics#top-deals">Electronics</a></li>
-            <li><a class="menu-link" data-category="mobiles" href="index.html?category=mobiles#top-deals">Mobiles</a></li>
-            <li><a class="menu-link" data-category="baby" href="index.html?category=baby#top-deals">Baby</a></li>
-            <li><a class="menu-link" data-category="deals" href="index.html?category=deals#top-deals">Deals</a></li>
-        </ul>
-
-    </nav>
-
-    <main class="home-page-main">
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Find What's Best For You</h1>
-                <p>Compare prices across platforms and save money</p>
+    <main>
+        <section class="pet-hero">
+            <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=1800&q=85" alt="Happy dog in a green field">
+            <div class="pet-hero-copy">
+                <span class="pet-kicker">Dogs, cats and companion animals</span>
+                <h1>Find loving homes and trusted sellers near you.</h1>
+                <p>Browse available pets, speak with the seller, or post an animal for sale or adoption in minutes.</p>
+                <div class="pet-hero-actions">
+                    <a href="#animals" class="pet-primary-btn">View animals</a>
+                    <a href="#post" class="pet-secondary-btn">Post an animal</a>
+                </div>
             </div>
         </section>
 
-        <section class="products-section" id="top-deals">
-            <h2 class="section-title">Top Deals For You</h2>
-            <div class="product-container" id="product-container"></div>
+        <section class="pet-toolbar" aria-label="Animal search and filters">
+            <label>
+                Search
+                <input id="pet-search" type="search" placeholder="Breed, city, animal or name">
+            </label>
+            <label>
+                Animal
+                <select id="pet-type-filter">
+                    <option value="all">All animals</option>
+                    <option value="Dog">Dogs</option>
+                    <option value="Cat">Cats</option>
+                    <option value="Rabbit">Rabbits</option>
+                    <option value="Bird">Birds</option>
+                    <option value="Other">Other</option>
+                </select>
+            </label>
+            <label>
+                Purpose
+                <select id="pet-purpose-filter">
+                    <option value="all">All listings</option>
+                    <option value="For Sale">For sale</option>
+                    <option value="Adoption">Adoption</option>
+                </select>
+            </label>
+        </section>
+
+        <section class="pet-section" id="animals">
+            <div class="pet-section-head">
+                <span class="pet-kicker">Available now</span>
+                <h2>Animals Looking For A Home</h2>
+            </div>
+            <div class="pet-listings" id="pet-listings" aria-live="polite"></div>
+        </section>
+
+        <section class="pet-post-band" id="post">
+            <div class="pet-post-copy">
+                <span class="pet-kicker">Seller tools</span>
+                <h2>Post or share your animal</h2>
+                <p>Add the animal details, your city, photo link and contact number. Buyers can call, message or send an adoption request from the listing.</p>
+            </div>
+
+            <form class="pet-form" id="pet-form">
+                <div class="pet-form-grid">
+                    <label>
+                        Pet name
+                        <input name="name" type="text" placeholder="Buddy" required>
+                    </label>
+                    <label>
+                        Animal type
+                        <select name="type" required>
+                            <option>Dog</option>
+                            <option>Cat</option>
+                            <option>Rabbit</option>
+                            <option>Bird</option>
+                            <option>Other</option>
+                        </select>
+                    </label>
+                    <label>
+                        Breed
+                        <input name="breed" type="text" placeholder="Labrador, Persian, Indie..." required>
+                    </label>
+                    <label>
+                        Age
+                        <input name="age" type="text" placeholder="8 months" required>
+                    </label>
+                    <label>
+                        City
+                        <input name="location" type="text" placeholder="Delhi" required>
+                    </label>
+                    <label>
+                        Purpose
+                        <select name="purpose" required>
+                            <option>Adoption</option>
+                            <option>For Sale</option>
+                        </select>
+                    </label>
+                    <label>
+                        Price or adoption fee
+                        <input name="price" type="text" placeholder="Free adoption or Rs 15,000" required>
+                    </label>
+                    <label>
+                        Contact phone
+                        <input name="phone" type="tel" placeholder="+91 98765 43210" required>
+                    </label>
+                    <label class="pet-wide-field">
+                        Photo URL
+                        <input name="image" type="url" placeholder="https://example.com/pet-photo.jpg">
+                    </label>
+                    <label class="pet-wide-field">
+                        About this animal
+                        <textarea name="description" rows="4" placeholder="Friendly, vaccinated, good with children..." required></textarea>
+                    </label>
+                </div>
+                <button class="pet-primary-btn" type="submit">Publish listing</button>
+                <p class="pet-form-note" id="pet-form-note" role="status"></p>
+            </form>
+        </section>
+
+        <section class="pet-contact-strip" id="contact">
+            <div>
+                <span class="pet-kicker">Need help?</span>
+                <h2>Speak with PawMarket support</h2>
+                <p>Use the contact buttons on any animal card, or reach our listing team for breeder and adoption verification.</p>
+            </div>
+            <a class="pet-secondary-btn" href="mailto:support@pawmarket.example">Email support</a>
         </section>
     </main>
 
-    <footer class="site-footer">
-        <p>&copy; 2026 SmartPrice | Compare Smart. Buy Smart.</p>
+    <footer class="pet-footer">
+        <p>&copy; 2026 PawMarket. Meet sellers, ask questions, and choose responsible homes.</p>
     </footer>
 
-    <nav class="bottom-nav" aria-label="Mobile tools">
-        <a class="bottom-nav-item active" href="index.html">
-            <span class="bottom-nav-icon">⌂</span>
-            <span>Home</span>
-        </a>
-        <button class="bottom-nav-item bottom-login" type="button">
-            <span class="bottom-nav-icon">◎</span>
-            <span>You</span>
-        </button>
-        <button class="bottom-nav-item bottom-nav-cart" type="button">
-            <span class="bottom-nav-icon">🛒</span>
-            <span>Cart</span>
-        </button>
-        <a class="bottom-nav-item" href="compare.html">
-            <span class="bottom-nav-icon">◉</span>
-            <span>Compare</span>
-        </a>
-        <button class="bottom-nav-item" type="button" data-mobile-menu-open>
-            <span class="bottom-nav-icon">☰</span>
-            <span>Menu</span>
-        </button>
+    <nav class="pet-mobile-actions" aria-label="Mobile quick actions">
+        <a href="#animals">Browse</a>
+        <a href="#post">Post</a>
     </nav>
 
-    <script src="Script.js"></script>
-    <script src="menu.js"></script>
-
+    <script src="pets.js"></script>
 </body>
 
 </html>
